@@ -25,7 +25,7 @@ Create a single mock sample containing a number of values, then learn to use `t.
 
 ```{r}
 #create a mock sample
-otter_lengths <- c(30, 45, 28, 31, 34, 46, 52, 29)
+otter_lengths <- c(30, 45, 28, 31, 34, 46, 52, 29, 90, 72, 112)
 
 #Find the confidence intervals:
 otter_ci <- t.test(otter_lengths)
@@ -43,4 +43,103 @@ side note; if want to check, put ?t.test in consol
 
 #### Now, using in-line referncing 
 
-mean otterlength is `r round(otter_ci$estimate, 1)` inches.
+mean otterlength is `r round(otter_ci$estimate, 1)` inches with a 95% confidence interval of [`r round(otter_ci$conf.int[1], 1)`,`r round(otter_ci$conf.int[2], 1)`] inches.
+
+## Part 2: Two-sample t-tests
+
+### Example 1
+
+Make two mock samples, and ask the question: do we have sufficent evidence to make us reject the null hypothesis that these samples were drawn from populations with the same mean?
+
+```{r}
+#Make my mock samples
+oak_trees <- c(20, 19, 24, 28, 34, 12, 15, 25)
+
+pine_trees <- c(39, 26, 20, 30, 37, 22, 19, 18)
+
+# Two-sample t-test
+trees_t <- t.test(oak_trees, pine_trees)
+
+# Null hypothesis: mean heights are the same 
+# ie.; Trees are drawn from populations with the same mean height
+#p-value is telling us that: If these are drawn from populations from the same mean, there's a 28.7% chance of getting samples that are at least this different. 
+#if these samples are drawn from populations with the same mean height, then there is a 28% change of taking  ar random sample from each population and finding that the samples are at least this different from random chance.  --> not enough evidence to reject null hypothesis. (reject/null shoukdn;t jshow up in  reort)
+```
+The mean heights  of oak and pine trees were (X+- y) and (x=-Y), respectably and he difference was not significant (t(`r trees_t$parameter`) = `r round(trees_t$statistic,1)`, p=`r round(trees_t$p.value, 1)`)
+"t(df) = t-statistic, p = p-value" 
+
+
+*Avoid*: p=0
+
+When things get really small  (ususally p<001)
+
+*Not great* 
+
+
+
+## Part 3: Another t-test with cars data 
+
+### Take a look at the data 
+
+```{r}
+compact_suv <- mpg %>% 
+  filter(class %in% c("compact", "suv")) 
+
+#Check for remaining levels 
+unique(compact_suv$class)
+```
+Create a histogram of gas mileage (cty) faceted by class starting from compact.suv
+
+```{r}
+ggplot(data = compact_suv, aes(x = cty)) +
+  geom_histogram(bins=12) +
+  facet_wrap(~class)
+
+ggplot(data = compact_suv, aes(sample=cty)) +
+  geom_qq() +
+  facet_wrap(~class)
+
+
+```
+Might need to check ehich text you----
+There are other things out there 
+
+Find some sumary statiscts for each group 
+
+```{r}
+car_stats <- compact_suv %>% 
+  group_by(class) %>%
+  summarize(
+    mean_city = round(mean(cty), 2),
+    sd_city = sd(cty),
+    sample_size = n()
+  )
+  
+```
+
+The t.test function REALLY wants vectors of things.
+`pull()` function to pull out a vector from a data frame.
+
+```{r}
+compact_sample <- compact_suv %>% 
+  filter(class == "compact") %>% 
+  pull(cty)
+
+#Your turn: do the same thing to get a vector of city gas milages for SUVS
+
+suv_sample <- compact_suv %>% 
+  filter(class=="suv") %>% 
+  pull(cty)
+
+```
+
+
+Ho: Mean City gas milages fro SUVs and compact cars are the same 
+
+```{r}
+t.test(compact_sample, suv_sample)
+```
+
+There is a signifcant differnce in mean city gas milage for SUVs and compact cars (t(df)) = t-statistic, p < 0.001)
+
+
