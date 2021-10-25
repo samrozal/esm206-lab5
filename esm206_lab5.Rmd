@@ -2,29 +2,45 @@
 title: "lab 5"
 author: "Sam Rozal"
 date: "10/25/2021"
-output: html_document
+output: 
+  html_document: 
+    toc: yes
+    theme: cerulean
+    code_folding: hide
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+```{r setup, include=FALSE, include=TRUE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message=FALSE, warning = FALSE)
+library(tidyverse)
+library(effsize)
 ```
 
-## R Markdown
+## Part 1: Confidence Intervals 
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+In this section, we'll use the `t.test()` function to calculate confidence intervals 
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+### Example 1
 
-```{r cars}
-summary(cars)
+Create a single mock sample containing a number of values, then learn to use `t.test()` to return confidence intervals, and learn to about in-line code referencing so our code becomes more reproducable 
+
+```{r}
+#create a mock sample
+otter_lengths <- c(30, 45, 28, 31, 34, 46, 52, 29)
+
+#Find the confidence intervals:
+otter_ci <- t.test(otter_lengths)
+
+#find the standard Deviation 
+otter_sd <- sd(otter_lengths)
 ```
+What does confidence interval mean?
+- We would expect if we took multiple samples from this pop and calculated a confidence interval for each othem we expect for 95% of the confidence intervals to contain the true population mean. 
 
-## Including Plots
 
-You can also embed plots, for example:
+Mean otter leangth is 36.9 inches $\pm$ (mean $\pm$ n=8) with a 95% confidence interval of [29.1, 44.7] inches. 
 
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
+side note; if want to check, put ?t.test in consol
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+#### Now, using in-line referncing 
+
+mean otterlength is `r round(otter_ci$estimate, 1)` inches.
